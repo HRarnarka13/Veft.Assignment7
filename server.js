@@ -94,10 +94,13 @@ app.post('/api/users', (req, res) => {
         res.status('412').send('Missing attribute: email');
         return;
     }
-
-    users.push(req.body);
-    let userIndex = users.indexOf(req.body);
-    res.status('201').send('../api/users/' + userIndex);
+    let nextId = users.length;
+    users.push({
+        id: nextId,
+        name : req.body.name,
+        email : req.body.email
+    });
+    res.status('201').send('../api/users/' + nextId);
 });
 
 // Returns a list of all punches registered for the given user.
