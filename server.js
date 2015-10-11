@@ -17,9 +17,7 @@ let punches = [];
 function getUserPunchesDTO(userPunches) {
     const punchesDTO = [];
     _.forEach(userPunches, (punch) => {
-        const company = _.find(companies, (c) => {
-            return c.id === punch.companyId;
-        });
+        const company = getCompanyById(punch.companyId);
         if (company) {
             punchesDTO.push({
                 company: company.name,
@@ -33,6 +31,12 @@ function getUserPunchesDTO(userPunches) {
 function getUserById(userId) {
     return _.find(users, (u) => {
         return u.id = userId;
+    });
+}
+
+function getCompanyById(companyId) {
+    return _.find(companies, (c) => {
+        return c.id === companyId;
     });
 }
 
@@ -123,9 +127,17 @@ app.post('/api/users/:id/punches', (req, res) => {
             res.status(412).send('Missing attribute company id!');
         }
         const companyId = req.body.companyId;
-        console.log("CompanyId", companyId);
-        punches.push(req.body);
-        res.status('201').send('../api/users/'+companyId+'/punches');
+        const company = getCompanyById(companyId);
+        if (company) {
+            punches.push({
+                userId : id,
+                companyId : companyId,
+                date : Date.now()
+            });
+            res.status('201').send('../api/users/'+companyId+'/punches');
+        } else {
+            res.status('412').send('Company not found.');
+        }
     } else {
         res.status('404').send('User not found.');
     }
