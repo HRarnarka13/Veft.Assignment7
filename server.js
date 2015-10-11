@@ -48,6 +48,21 @@ let punches = [
     }
 ];
 
+// Returns an array of UserPunchesDTO objects
+function getUserPunchesDTO(userPunches) {
+    const punchesDTO = [];
+    _.forEach(userPunches, (punch) => {
+        const company = _.find(companies, (c) => {
+            return c.id === punch.companyId;
+        });
+        punchesDTO.push({
+            company: company.name,
+            date: punch.date
+        });
+    });
+    return punchesDTO;
+}
+
 // Returns a list of all registered companies
 app.get('/api/companies', (req, res) => {
     res.send(companies);
@@ -123,22 +138,12 @@ the company.
 app.get('/api/users/:id/punches', (req, res) => {
     const id = parseInt(req.params.id);
     if (req.query.company) {
-        console.log('company', req.query.company);
-        res.status('200').send('Requested id: '+req.params.id+" filter: "+req.query.company);
+        const companyId = parseInt(req.query.company);
+        const userPunches = _.filter(punches, {'userId': id, 'companyId': companyId});
+        res.status('200').send(getUserPunchesDTO(userPunches));
     } else {
         const userPunches = _.filter(punches, 'userId', id);
-        console.log('userPunches', userPunches);
-        const punchesDTO = [];
-        _.forEach(userPunches, (punch) => {
-            const company = _.find(companies, (c) => {
-                return c.id === punch.companyId;
-            });
-            punchesDTO.push({
-                company: company.name,
-                date: punch.date
-            });
-        });
-        res.status('200').send(punchesDTO);
+        res.status('200').send(getUserPunchesDTO(userPunches));
     }
 });
 
