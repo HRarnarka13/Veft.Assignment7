@@ -9,44 +9,9 @@ const app = express();
 app.use(bodyParser.json());
 
 // A list of companies
-var companies = [
-    {
-        id: 0,
-        name: 'te og kaffi',
-        punchCount: 10
-    },
-    {
-        id: 1,
-        name : 'gló',
-        punchCount : 10
-    }
-];
-
-let users = [
-    {
-        id : 0,
-        name: 'Arnar',
-        email: 'arnarka13@ru.is'
-    },
-    {
-        id : 1,
-        name : "Jörri",
-        email : 'jorri@ru.is'
-    }
-];
-
-let punches = [
-    {
-        companyId : 0,
-        userId : 1,
-        date : "2015-10-11"
-    },
-    {
-        companyId : 1,
-        userId : 1,
-        date : "2015-10-10"
-    }
-];
+var companies = [];
+let users = [];
+let punches = [];
 
 // Returns an array of UserPunchesDTO objects
 function getUserPunchesDTO(userPunches) {
@@ -55,10 +20,12 @@ function getUserPunchesDTO(userPunches) {
         const company = _.find(companies, (c) => {
             return c.id === punch.companyId;
         });
-        punchesDTO.push({
-            company: company.name,
-            date: punch.date
-        });
+        if (company) {
+            punchesDTO.push({
+                company: company.name,
+                date: punch.date
+            });
+        }
     });
     return punchesDTO;
 }
@@ -70,7 +37,6 @@ app.get('/api/companies', (req, res) => {
 
 // Adds a new company
 app.post('/api/companies', (req, res) => {
-    console.log('req.body', req.body);
     if (!req.body.hasOwnProperty('name')) {
         res.status('412').send('missing attribute: name');
         return;
@@ -110,7 +76,6 @@ app.get('/api/users', (req,res) => {
 
 // Adds a new user to the system
 app.post('/api/users', (req, res) => {
-    console.log('req.body', req.body);
     if (!req.body.hasOwnProperty('name')) {
         res.status('412').send('missing attribute: name');
         return;
@@ -125,15 +90,6 @@ app.post('/api/users', (req, res) => {
     res.status('201').send('../api/users/' + userIndex);
 });
 
-/*
-(20%) /api/users/{id}/punches - GET
-Returns a list of all punches registered for the given user. Each punch contains
-information about what company it was added to, and when it was created.
-It should be possible to filter the list by adding a "?company={id}" to the query.
-(20%) /api/users/{id}/punches - POST
-Adds a new punch to the user account. The only information needed is the id of
-the company.
-*/
 // Returns a list of all punches registered for the given user.
 app.get('/api/users/:id/punches', (req, res) => {
     const id = parseInt(req.params.id);
@@ -158,8 +114,7 @@ app.post('/api/users/:id/punches', (req, res) => {
     res.status('201').send('../api/users/'+companyId+'/punches');
 });
 
-
 // Run the server
 app.listen(port, () => {
     console.log('Server is on port', port);
-})
+});
