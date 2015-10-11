@@ -116,6 +116,7 @@ app.get('/api/users/:id/punches', (req, res) => {
 
 // Adds a new punch to the user account.
 app.post('/api/users/:id/punches', (req, res) => {
+    const id = parseInt(req.params.id);
     const user = getUserById(id);
     if (user) {
         if(!req.body.hasOwnProperty('companyId')){
