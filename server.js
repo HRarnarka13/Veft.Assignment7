@@ -6,10 +6,12 @@ const _ = require('lodash');
 const port = 3000;
 const app = express();
 
+const url = 'http://localhost:' + port + '/api';
+
 app.use(bodyParser.json());
 
 // A list of companies
-var companies = [];
+let companies = [];
 let users = [];
 let punches = [];
 
@@ -63,7 +65,7 @@ app.post('/api/companies', (req, res) => {
         punchCount: req.body.punchCount
     };
     companies.push(company);
-    res.status('201').send('../api/companies/' + nextId);
+    res.status('201').send(url + '/companies/' + nextId);
 });
 
 // Returns a given company by id.
@@ -100,7 +102,7 @@ app.post('/api/users', (req, res) => {
         name : req.body.name,
         email : req.body.email
     });
-    res.status('201').send('../api/users/' + nextId);
+    res.status('201').send(url + '/users/' + nextId);
 });
 
 // Returns a list of all punches registered for the given user.
@@ -132,12 +134,14 @@ app.post('/api/users/:id/punches', (req, res) => {
         const companyId = req.body.companyId;
         const company = getCompanyById(companyId);
         if (company) {
+            let nextId = punches.length;
             punches.push({
+                id : nextId,
                 userId : id,
                 companyId : companyId,
                 date : Date.now()
             });
-            res.status('201').send('../api/users/'+companyId+'/punches');
+            res.status('201').send(url + '/users/'+ id + '/punches/' + nextId);
         } else {
             res.status('412').send('Company not found.');
         }
@@ -145,6 +149,25 @@ app.post('/api/users/:id/punches', (req, res) => {
         res.status('404').send('User not found.');
     }
 });
+
+app.get('/api/users/:userId/punches/:punchId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const user = getUserById(userId);
+    if (user) {
+        const punchId = parseInt(req.params.punchId);
+        const punch = _.find(punches, (p) => {
+            return p.id === punchId;
+        });
+        if (punch) {
+            res.status('200').send(punch);
+        } else {
+            res.status('404').send('Punch not found.');
+        }
+    } else {
+        res.status('404').send('User not found.');
+    }
+});
+
 
 // Run the server
 app.listen(port, () => {
