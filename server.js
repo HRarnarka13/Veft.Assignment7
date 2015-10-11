@@ -30,6 +30,12 @@ function getUserPunchesDTO(userPunches) {
     return punchesDTO;
 }
 
+function getUserById(userId) {
+    return _.find(users, (u) => {
+        return u.id = userId;
+    });
+}
+
 // Returns a list of all registered companies
 app.get('/api/companies', (req, res) => {
     res.send(companies);
@@ -65,7 +71,7 @@ app.get('/api/companies/:id', (req, res) => {
     if (company) {
         res.status('200').send(company);
     } else {
-        res.status('404').send('company not found.');
+        res.status('404').send('Company not found.');
     }
 });
 
@@ -77,11 +83,11 @@ app.get('/api/users', (req,res) => {
 // Adds a new user to the system
 app.post('/api/users', (req, res) => {
     if (!req.body.hasOwnProperty('name')) {
-        res.status('412').send('missing attribute: name');
+        res.status('412').send('Missing attribute: name');
         return;
     }
     if (!req.body.hasOwnProperty('email')) {
-        res.status('412').send('missing attribute: email');
+        res.status('412').send('Missing attribute: email');
         return;
     }
 
@@ -93,25 +99,35 @@ app.post('/api/users', (req, res) => {
 // Returns a list of all punches registered for the given user.
 app.get('/api/users/:id/punches', (req, res) => {
     const id = parseInt(req.params.id);
-    if (req.query.company) {
-        const companyId = parseInt(req.query.company);
-        const userPunches = _.filter(punches, {'userId': id, 'companyId': companyId});
-        res.status('200').send(getUserPunchesDTO(userPunches));
+    const user = getUserById(id);
+    if (user) {
+        if (req.query.company) {
+            const companyId = parseInt(req.query.company);
+            const userPunches = _.filter(punches, {'userId': id, 'companyId': companyId});
+            res.status('200').send(getUserPunchesDTO(userPunches));
+        } else {
+            const userPunches = _.filter(punches, 'userId', id);
+            res.status('200').send(getUserPunchesDTO(userPunches));
+        }
     } else {
-        const userPunches = _.filter(punches, 'userId', id);
-        res.status('200').send(getUserPunchesDTO(userPunches));
+        res.status('404').send('User not found.');
     }
 });
 
 // Adds a new punch to the user account.
 app.post('/api/users/:id/punches', (req, res) => {
-    if(!req.body.hasOwnProperty('companyId')){
-        res.status(412).send('Missing attribute company id!');
+    const user = getUserById(id);
+    if (user) {
+        if(!req.body.hasOwnProperty('companyId')){
+            res.status(412).send('Missing attribute company id!');
+        }
+        const companyId = req.body.companyId;
+        console.log("CompanyId", companyId);
+        punches.push(req.body);
+        res.status('201').send('../api/users/'+companyId+'/punches');
+    } else {
+        res.status('404').send('User not found.');
     }
-    const companyId = req.body.companyId;
-    console.log("CompanyId", companyId);
-    punches.push(req.body);
-    res.status('201').send('../api/users/'+companyId+'/punches');
 });
 
 // Run the server
