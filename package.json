@@ -1,0 +1,19 @@
+{
+  "name": "punchcard.com",
+  "version": "1.0.0",
+  "description": "Assignment7 in VEFT - punchcard.com",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "arnarka13@ru.is, eysteinn13@ru.is",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "eslint": "^1.6.0"
+  }
+}
