@@ -144,7 +144,13 @@ app.get('/api/users/:id/punches', (req, res) => {
 
 // Adds a new punch to the user account.
 app.post('/api/users/:id/punches', (req, res) => {
-    res.status('200').send('Requested id: ' + req.params.id);
+    if(!req.body.hasOwnProperty('companyId')){
+        res.status(412).send('Missing attribute company id!');
+    }
+    const companyId = req.body.companyId;
+    console.log("CompanyId", companyId);
+    punches.push(req.body);
+    res.status('201').send('../api/users/'+companyId+'/punches');
 });
 
 
