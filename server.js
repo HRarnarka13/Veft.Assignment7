@@ -30,7 +30,7 @@ function getUserPunchesDTO(userPunches) {
 
 function getUserById(userId) {
     return _.find(users, (u) => {
-        return u.id = userId;
+        return u.id === userId;
     });
 }
 
